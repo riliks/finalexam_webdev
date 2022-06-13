@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="title-area position-relative" style="background-image: url({{ book.bg_image.url }});">
+    <div class="h-100 w-100 py-5 d-flex text-center position-absolute" style="background-color: rgba(0, 0, 0, 0.65);">
+        <div class="m-auto">
+            <h1 class="title mb-3 font-weight-bold">{{ book.name }}</h1>
+            <p class="mb-3 mx-auto">
+                {{ book.category.name }} | <span>★</span> <span>{{ "%.2f" | format(book.rating) }}</span>
+            </p>
+            {% if current_user.is_authenticated %}
+            <a href="#" class="btn btn-outline-light btn-lg">Перейти к материалам курса</a>
+            {% else %}
+            <button class="btn btn-outline-light btn-lg" disabled>Прочитать</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <section class="about mb-5">
+        <h2 class="mb-3 text-center text-uppercase font-weight-bold">Описание книги</h2>
+        <p>{{ book.short_desc }}</p>
+    </section>
+
+    <section class="program mb-5">
+        <h2 class="mb-3 text-center text-uppercase font-weight-bold">Рецензии произведения</h2>
+
+        {% for theme in book.themes %}
+        <div class="card mb-3">
+            <div class="card-header d-flex align-items-center">
+                <h5 class="mb-0">Тема {{ loop.index }}. {{ theme.name }}</h5>
+                {% if current_user.is_authenticated and current_user.id == book.author_id %}
+                <button class="btn btn-primary btn-sm ms-auto" title="Добавить пункт"
+                    data-parent-id="{{ theme.id }}">+</button>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% set outer_loop = loop %}
+                {% for subtheme in theme.subthemes %}
+                <div class="d-flex align-items-center">
+                    <p class="card-text mb-3">{{ outer_loop.index }}.{{ loop.index }}. {{ subtheme.name }}</p>
+                    {% if current_user.is_authenticated and current_user.id == book.author_id %}
+                    <a href="#" class="btn btn-sm ms-auto" title="Добавить материал"
+                        data-parent-id="{{ theme.id }}">+</a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if current_user.is_authenticated and current_user.id == book.author_id %}
+        <div class="text-center">
+            <button type="button" class="btn btn-dark">
+                Добавить тему
+            </button>
+        </div>
+        <div class="my-3">
+            <h2 class="text-center text-uppercase font-weight-bold">Отзывы:</h2>
+        </div>
+        <!-- Отзывы -->
+        {% endif %}
+
+        {% for review in reviews %}
+        <div class="book-list container-fluid mt-3 mb-3"></div>
+        <div class="row p-3 border rounded mb-3">
+            <div class="col-md-3 mb-md-0 d-flex align-items-center ">
+                <div>
+                    <h4><span>{{ review.user.full_name }}</span></h4>
+                    <h6><span>{{ review.created_at }}</span></h6>
+
+                </div>
+            </div>
+            <div class="col-md-3 mb-md-0 d-flex align-items-center justify-content-center">
+                <h4>
+                    <span>★</span>
+                    <span>{{ review.rating }}</span>
+                </h4>
+            </div>
+            <div class="col-md-6 mb-md-0 d-flex flex-start align-items-center">
+                <h4>
+                    <span>{{ review.text }}</span>
+                </h4>
+            </div>
+        </div>
+        {% endfor %}
+        {% if current_user.is_authenticated %}
+        {% if check==None %}
+        <!-- Кнопка-триггер модального окна -->
+        <div class="text-center mt-3">
+            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Оставить отзыв
+            </button>
+        </div>
+        <!-- Модальное окно -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Оставить отзыв</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    </div>
+                    <form method="POST" action="{{ url_for('books.review', book_id=book.id) }}">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="mark" class="form-label">Оценка</label>
+                                <select id="mark" class="form-select" name="mark">
+                                    <option value="5">Отлично</option>
+                                    <option value="4">Хорошо</option>
+                                    <option value="3">Удовлетворительно</option>
+                                    <option value="2">Неудовлетворительно</option>
+                                    <option value="1">Плохо</option>
+                                    <option value="0">Ужасно</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="review" class="form-label">Отзыв</label>
+                                <input type="text" class="form-control" id="review" name="review">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-dark">Отправить</button>
+                        </div>
+
+                        <input type="hidden" name="book_id" value="{{ book.id }}">
+                        <input type="hidden" name="user_id" value="{{ current_user.id }}">
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <h3 class="mb-3 text-center text-uppercase font-weight-bold">Ваш отзыв:</h3>
+        <div class="book-list container-fluid mt-3 mb-3"></div>
+        <div class="row p-3 border rounded mb-3">
+            <div class="col-md-3 mb-md-0 d-flex align-items-center ">
+                <div>
+                    <h4><span>{{ check.user.full_name }}</span></h4>
+                    <h6><span>{{ check.created_at }}</span></h6>
+
+                </div>
+            </div>
+            <div class="col-md-3 mb-md-0 d-flex align-items-center justify-content-center">
+                <h4>
+                    <span>★</span>
+                    <span>{{ check.rating }}</span>
+                </h4>
+            </div>
+            <div class="col-md-6 mb-md-0 d-flex flex-start align-items-center">
+                <h4>
+                    <span>{{ check.text }}</span>
+                </h4>
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+        <div class="text-center mt-3">
+            <a href="{{ url_for('books.reviewlist', book_id=book.id, f='last') }}" class="btn btn-dark btn-lg">Больше отзывов</a>
+        </div>
+
+    </section>
+</div>
+
+{% endblock %}

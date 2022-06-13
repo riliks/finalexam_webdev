@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% from 'pagination.html' import render_pagination %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-3 text-center text-uppercase font-weight-bold">Полный список отзывов</h2>
+    <div class="row p-3 border rounded mb-3">
+        <form method="POST" action="{{ url_for('books.reviewlist', book_id=reviews[0].book_id) }}"
+            enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-10 mt-1 text-center col-sm-12">
+                    <select class="form-select form-select-lg mb-3 " aria-label=".form-select-lg example" name="filter"
+                        id="filter">
+                        <option value="last" {% if f=='last' %} selected {% endif %}>Последние</option>
+                        <option value="first" {% if f=='first' %} selected {% endif %}>Первые</option>
+                        <option value="better" {% if f=='better' %} selected {% endif %}>Положительные</option>
+                        <option value="worse" {% if f=='worse' %} selected {% endif %}>Отрицательные</option>
+                    </select>
+                </div>
+                <div class="col-md-2 text-center align-text-bottom">
+                    <input type="submit" class="mt-2 btn btn-dark align-text-bottom" value="Сохранить">
+                </div>
+            </div>
+        </form>
+    </div>
+    <section class="review mb-5">
+        {% for review in reviews %}
+        <div class="book-list container-fluid mt-3 mb-3"></div>
+        <div class="row p-3 border rounded mb-3">
+            <div class="col-md-3 mb-md-0 d-flex align-items-center ">
+                <div>
+                    <h4><span>{{ review.user.full_name }}</span></h4>
+                    <h6><span>{{ review.created_at }}</span></h6>
+
+                </div>
+            </div>
+            <div class="col-md-3 mb-md-0 d-flex align-items-center justify-content-center">
+                <h4>
+                    <span>★</span>
+                    <span>{{ review.rating }}</span>
+                </h4>
+            </div>
+            <div class="col-md-6 mb-md-0 d-flex flex-start align-items-center">
+                <h4>
+                    <span>{{ review.text }}</span>
+                </h4>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="mb-5">
+            {{ render_pagination(pagination, request.endpoint, {"book_id": reviews[0].book_id, "f": f}) }}
+        </div>
+    </section>
+</div>
+{% endblock %}
