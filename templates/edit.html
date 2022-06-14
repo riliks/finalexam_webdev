@@ -1,0 +1,52 @@
+{% macro render_edit(flag,categories,book='') %}
+<div class="mb-3 row">
+    <div class="{% if flag=='new' %} col-md-6 {% else %} col-md-12 {% endif %} d-flex flex-column">
+        <div class="mb-3">
+            <label for="name">Название</label>
+            <input class="form-control" type="text" name="name" id="name" value="{% if flag=='edit' %} {{ book.name }} {% endif %}">
+        </div>
+        <div class="mb-3">
+            <label for="category">Жанр</label>
+            <select class="form-select" multiple aria-label="size 3 select example" name="category_id" id="category_id">
+                {% for category in categories %}
+                <option {% if flag=='edit' and book.category_id == category.id %} selected {% endif %} value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="name">Автор</label>
+            <input class="form-control" type="text" name="author" id="author" value="{% if flag=='edit' %} {{ book.author }} {% endif %}">
+        </div>
+        <div class="mb-3">
+            <label for="name">Издание</label>
+            <input class="form-control" type="text" name="pub_house" id="pub_house" value="{% if flag=='edit' %} {{ book.pub_house }} {% endif %}">
+        </div>
+        <div class="mb-3 d-flex flex-column flex-grow-1">
+            <label for="short_description">Краткое описание</label>
+            <textarea class="form-control flex-grow-1" name="short_desc" id="short_desc" cols="30" rows="5">{% if flag=='edit' %} {{ book.short_desc }} {% endif %}</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="name">Количество страниц</label>
+            <input class="form-control" value="{% if flag=='edit' %} {{ book.volume }} {% endif %}" type="number" name="volume" id="volume" >
+        </div>
+
+    </div>
+    {% if flag=='new' %}
+    <div class="col-md-6 d-flex flex-column">
+        <div class="mb-3">
+            <label for="background_img">Фоновое изображение</label>
+            <input class="form-control" type="file" name="background_img" id="background_img">
+        </div>
+        <div class="mb-3 background-preview p-3 rounded d-flex align-items-center justify-content-center">
+            <img src="#" class="img-fluid d-none" alt="">
+            <label for="background_img" class="btn btn-dark">Выбрать изображение</label>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="mb-3 text-center">
+    <input type="submit" class="btn btn-dark" value="Сохранить">
+</div>
+{% endmacro %}

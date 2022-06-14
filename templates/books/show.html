@@ -9,7 +9,7 @@
                 {{ book.category.name }} | <span>★</span> <span>{{ "%.2f" | format(book.rating) }}</span>
             </p>
             {% if current_user.is_authenticated %}
-            <a href="#" class="btn btn-outline-light btn-lg">Перейти к материалам курса</a>
+            <a href="#" class="btn btn-outline-light btn-lg">Прочитать</a>
             {% else %}
             <button class="btn btn-outline-light btn-lg" disabled>Прочитать</button>
             {% endif %}

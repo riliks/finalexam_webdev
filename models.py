@@ -65,7 +65,7 @@ class Book(db.Model):
     pub_house = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, server_default=sa.sql.func.now())
     volume = db.Column(db.Integer, nullable=False)
-    image_id = db.Column(db.Integer, db.ForeignKey('images.id'))
+    image_id = db.Column(db.Integer, db.ForeignKey('images.id'))#, ondelete='CASCADE')
     category = db.relationship('Category')
     bg_image = db.relationship('Image')
 
