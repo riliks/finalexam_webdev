@@ -19,20 +19,22 @@ convention = {
 metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(app, metadata=metadata)
 migrate = Migrate(app, db)
-
+from flaskext.markdown import Markdown
+Markdown(app)
 from models import Category, Image
 
 from auth import bp as auth_bp, init_login_manager
 from books import bp as books_bp
+from visits import bp as visits_bp
 app.register_blueprint(auth_bp)
 app.register_blueprint(books_bp)
+app.register_blueprint(visits_bp)
 
 init_login_manager(app)
 
 @app.route('/')
 def index():
-    categories = Category.query.all()
-    return render_template('index.html', categories=categories)
+    return render_template('index.html')
 
 
 @app.route('/images/<image_id>')

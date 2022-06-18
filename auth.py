@@ -22,10 +22,11 @@ def login():
     if request.method == 'POST':
         login = request.form.get('login')
         password = request.form.get('password')
+        remember = request.form.get('remember') == 'on'
         if login and password:
             user = User.query.filter_by(login=login).first()
             if user and user.check_password(password):
-                login_user(user)
+                login_user(user,remember=remember)
                 flash('Вы успешно аутентифицированы.', 'success')
                 next = request.args.get('next')
                 return redirect(next or url_for('index'))

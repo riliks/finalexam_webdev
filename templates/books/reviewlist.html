@@ -5,7 +5,7 @@
 <div class="container mt-5">
     <h2 class="mb-3 text-center text-uppercase font-weight-bold">Полный список отзывов</h2>
     <div class="row p-3 border rounded mb-3">
-        <form method="POST" action="{{ url_for('books.reviewlist', book_id=reviews[0].book_id) }}"
+        <form method="POST" action="{{ url_for('books.reviewlist', book_id=book_id) }}"
             enctype="multipart/form-data">
             <div class="row">
                 <div class="col-md-10 mt-1 text-center col-sm-12">
@@ -48,7 +48,7 @@
         </div>
         {% endfor %}
         <div class="mb-5">
-            {{ render_pagination(pagination, request.endpoint, {"book_id": reviews[0].book_id, "f": f}) }}
+            {{ render_pagination(pagination, request.endpoint, {"book_id": book_id, "f": f}) }}
         </div>
     </section>
 </div>

@@ -1,10 +1,15 @@
 import os
+from unicodedata import category
 import sqlalchemy as sa
 from app import db
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import UserMixin
 from flask import url_for
 
+book_category = db.Table('book_category',
+    db.Column('book_id', db.Integer, db.ForeignKey('books.id')),
+    db.Column('category_id', db.Integer, db.ForeignKey('categories.id'))
+)
 
 class Category(db.Model):
     __tablename__ = 'categories'
@@ -14,7 +19,17 @@ class Category(db.Model):
     parent_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
 
     def __repr__(self):
-        return '<Category %r>' % self.name
+        return '<Category %r>' % self.id
+
+# class Logs(db.Model):
+#     __tablename__ = 'logs'
+
+#     id = db.Column(db.Integer, primary_key=True)
+#     created_at = db.Column(db.DateTime, nullable=False, server_default=sa.sql.func.now())
+#     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+#     book_id= db.Column(db.Integer, db.ForeignKey('books.id'))
+#     def __repr__(self):
+#         return '<Logs %r>' % self.id
 
 class Roles(db.Model):
     __tablename__ = 'roles'
@@ -47,6 +62,12 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def create_user():
+        user = User(first_name='Иван', last_name='Иванов', login='user',role="1")
+        user.set_password('qwerty')
+        db.session.add(user)
+        db.session.commit()
+
     @property
     def full_name(self):
         return ' '.join([self.last_name, self.first_name, self.middle_name or ''])
@@ -60,14 +81,16 @@ class Book(db.Model):
     short_desc = db.Column(db.Text(), nullable=False)
     rating_sum = db.Column(db.Integer, nullable=False, default=0)
     rating_num = db.Column(db.Integer, nullable=False, default=0)
-    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    year = db.Column(db.Integer,nullable=False)
     author = db.Column(db.String(100), nullable=False)
     pub_house = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, server_default=sa.sql.func.now())
     volume = db.Column(db.Integer, nullable=False)
     image_id = db.Column(db.Integer, db.ForeignKey('images.id'))#, ondelete='CASCADE')
-    category = db.relationship('Category')
+    view = db.Column(db.Integer, nullable=False, default=0)
     bg_image = db.relationship('Image')
+    categories = db.relationship('Category', secondary=book_category,
+        backref=db.backref('books'))
 
     @property
     def rating(self):

@@ -1,34 +1,59 @@
-{% macro render_edit(flag,categories,book='') %}
+{% macro render_edit(flag,categories,book='',errors=['','','','','','','False','']) %}
 <div class="mb-3 row">
     <div class="{% if flag=='new' %} col-md-6 {% else %} col-md-12 {% endif %} d-flex flex-column">
         <div class="mb-3">
             <label for="name">Название</label>
-            <input class="form-control" type="text" name="name" id="name" value="{% if flag=='edit' %} {{ book.name }} {% endif %}">
+            <input class="form-control {% if errors[0] %} is-invalid {% endif %}" type="text" name="name" id="name"
+                value="{{ book.name or ''}}">
+            <div class="invalid-feedback">Поле не может быть пустым</div>
         </div>
         <div class="mb-3">
-            <label for="category">Жанр</label>
-            <select class="form-select" multiple aria-label="size 3 select example" name="category_id" id="category_id">
+            <div class="{% if errors[7] %} is-invalid {% endif %}">
+                <label for="category is-invalid">Жанр</label>
                 {% for category in categories %}
-                <option {% if flag=='edit' and book.category_id == category.id %} selected {% endif %} value="{{ category.id }}">{{ category.name }}</option>
+                <div class="mb-1 ">
+                    <input class="form-check-input" type="checkbox" name="category{{ category.id }}"
+                        id="flexCheckDefault" {% for checked in book.categories %}{% if category.id==checked.id %}
+                        checked {% endif %}{% endfor %}>
+                    <label class="form-check-label" for="flexCheckDefault">
+                        {{ category.name }}
+                    </label>
+                </div>
                 {% endfor %}
-            </select>
+            </div>
+            <div class="invalid-feedback">Поле не может быть пустым</div>
         </div>
         <div class="mb-3">
             <label for="name">Автор</label>
-            <input class="form-control" type="text" name="author" id="author" value="{% if flag=='edit' %} {{ book.author }} {% endif %}">
+            <input class="form-control {% if errors[2] %} is-invalid {% endif %}" type="text" name="author" id="author"
+                value="{{ book.author or ''}}">
+            <div class="invalid-feedback">Поле не может быть пустым</div>
         </div>
         <div class="mb-3">
             <label for="name">Издание</label>
-            <input class="form-control" type="text" name="pub_house" id="pub_house" value="{% if flag=='edit' %} {{ book.pub_house }} {% endif %}">
+            <input class="form-control {% if errors[3] %} is-invalid {% endif %}" type="text" name="pub_house"
+                id="pub_house" value="{{ book.pub_house or ''}}">
+            <div class="invalid-feedback">Поле не может быть пустым</div>
         </div>
         <div class="mb-3 d-flex flex-column flex-grow-1">
             <label for="short_description">Краткое описание</label>
-            <textarea class="form-control flex-grow-1" name="short_desc" id="short_desc" cols="30" rows="5">{% if flag=='edit' %} {{ book.short_desc }} {% endif %}</textarea>
+            <textarea class="form-control flex-grow-1 {% if errors[4] %} is-invalid {% endif %}" name="short_desc"
+                id="my-text-area" cols="30" rows="5">{{ book.short_desc or '' }}</textarea>
+            <div class="invalid-feedback">Поле не может быть пустым</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="year">Год написания</label>
+            <input class="form-control {% if errors[1] %} is-invalid {% endif %}" value="{{ book.year or ''}}"
+                type="number" name="year" id="year">
+            <div class="invalid-feedback">Некорректный год написания</div>
         </div>
 
         <div class="mb-3">
             <label for="name">Количество страниц</label>
-            <input class="form-control" value="{% if flag=='edit' %} {{ book.volume }} {% endif %}" type="number" name="volume" id="volume" >
+            <input class="form-control {% if errors[5] %} is-invalid {% endif %}" value="{{ book.volume or ''}}"
+                type="number" name="volume" id="volume">
+            <div class="invalid-feedback">Поле не может быть пустым</div>
         </div>
 
     </div>
@@ -45,8 +70,9 @@
     </div>
     {% endif %}
 </div>
-
+{% if flag=='new' %}
 <div class="mb-3 text-center">
     <input type="submit" class="btn btn-dark" value="Сохранить">
 </div>
+{% endif %}
 {% endmacro %}

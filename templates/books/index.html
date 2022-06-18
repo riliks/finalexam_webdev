@@ -3,139 +3,152 @@
 {% from 'edit.html' import render_edit %}
 {% block content %}
 <div class="container">
-    <div class="my-5">
-
-        <h2 class="mb-3 text-center text-uppercase font-weight-bold">Книги для прочтения</h2>
-
-        <form class="mb-5 mt-3 row align-items-center">
-            <div class="col-md-6 my-3">
-                <input autocomplete="off" type="text" class="form-control" id="book-name" name="name" value="{{ request.args.get('name') or '' }}" placeholder="Название книги">
-            </div>
-            
-            <div class="col-md-4 my-3">
-                <select class="form-select" id="book-category" name="category_ids" title="Жанр книги">
-                    {% for category in categories %}
-                        <option value="{{ category.id }}" {% if category.id | string in request.args.getlist('category_ids') %}selected{% endif %}>{{ category.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="col-md-2 my-3 align-self-end">
-                <button type="submit" class="btn btn-dark w-100 mt-auto">Найти</button>
-            </div>
-        </form>
+    <div class="d-flex flex-row align-items-center">
+        <div class="text-center  col-md-4 col-sm-12">
+            <a class="btn btn-lg btn-dark" href="{{ url_for('books.popular') }}">Популярные книги</a>
+        </div>
+        <div class="my-5 col-md-4 col-sm-12">
+            <h2 class="mb-3 text-center text-uppercase font-weight-bold">Книги для прочтения</h2>
+        </div>
+        <div class="col-md-4 col-sm-12 text-center">
+            <a class="btn  btn-lg btn-dark" href="{{ url_for('books.viewed') }}">Недавно просмотренные книги</a>
+        </div>
     </div>
     {# url_for('books.show', book_id=book.id) #}
-    <div class="book-list container-fluid mt-3 mb-3">
+    <div class="container-fluid mt-3 mb-3">
         {% for book in books %}
-            <div class="row p-3 border rounded mb-3" data-url="{{ url_for('books.show', book_id=book.id) }}">
-                <div class="col-md-3 mb-3 mb-md-0 d-flex align-items-center justify-content-center" >
-                    <div class="book-logo" style="background-image: url({{ book.bg_image.url }});">
-                    </div>
-                </div>
-                <div class="col-md-9 align-items-center">
-                    <div class="d-flex">
-                        <h4 class="text-uppercase" id="book_name">{{ book.name }}</h4>
-                        <p class="ms-auto rating">
-                            <span>★</span> <span>{{ book.rating }}</span>
-                        </p> 
-                    </div>
-                    <p class="text-muted my-3">{{ book.short_desc }}</p>
-                    <p>{{ book.volume }} {% if book.volume % 100 <= 20 %}страниц {% else %} {% if book.volume % 10 == 1 %} страница {% else %} {% if book.volume % 10 < 5 %} страницы {% else %} страниц {% endif %}{% endif %}{% endif %}</p>
-                    {% if current_user.is_authenticated %}
-                    <div class="d-flex justify-content-end">
-                        <div class="px-2">
-                            <a class="btn btn-lg btn-dark " href="{{ url_for('books.show', book_id=book.id) }}">Подробнее</a>
-                        </div>
-                        {% if user.role==1 or user.role==2  %}
-                        <div class="px-2">
-                            <button type="button" class="h-100 btn btn-info" data-bs-toggle="modal" data-bs-target="#edit{{ book.id }}">
-                                Редактировать
-                            </button>
-                        </div>
-                        <!-- Модальное окно редактирования -->
-                        <div class="modal fade" id="edit{{ book.id }}" tabindex="-1" aria-labelledby="edit{{ book.id }}" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="header_edit"> Редактирование книги из библиотеки</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-                                    </div>
-                                    <form method="POST" action="{{ url_for('books.edit') }}">
-                                        <input type="hidden" class="bookiddelete" name="book_id" value="{{ book.id }}">
-                                        <input type="hidden" class="bookiddelete2" name="book_name" value="{{ book.name }}">
-                                        <div class="container mb-5">
-                                            {{ render_edit('edit',categories,book) }}
-                                        </div>
-                                        <div class="modal-footer">
-                                            <div class="py-2">
-                                                <a class="btn btn-md btn-dark" href="{{ url_for('books.index') }}">Отмена</a>
-                                            </div>
-                                            <div class="py-2">
-                                                <button type="submit" class="btn btn-danger">Подтвердить</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-                        {% if user.role==1 %}
-                        <div class="px-2">
-                            <input type="hidden" class="bookiddelete1" name="book_id" value="{{ book.id }}">
-                            <input type="hidden" class="bookiddelete3" name="book_id" value="{{ book.name }}">
-                            <button type="button" class="h-100 btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete" onclick="document.getElementById('deletename').value=this.parentNode.parentNode.parentNode.querySelector('.text-uppercase').innerHTML; document.querySelector('.bookiddelete').value=this.parentNode.querySelector('.bookiddelete1').value;document.querySelector('.bookiddelete2').value=this.parentNode.querySelector('.bookiddelete3').value">
-                                Удалить
-                            </button>
-                        </div>
-                        <!-- Модальное окно удаления -->
-                        <div class="modal fade" id="delete" tabindex="-1" aria-labelledby="delete" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="header_delete"> Удаление книги из библиотеки</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-                                    </div>
-                                    <form method="POST" action="{{ url_for('books.delete') }}">
-                                        <input type="hidden" class="bookiddelete" name="book_id" value="{{ book.id }}">
-                                        <input type="hidden" class="bookiddelete2" name="book_name" value="{{ book.name }}">
-                                        <div class="modal-body">
-                                            <div class="mb-3">
-                                                <label for="mark"  class="form-label DeleteForm">Вы действительно хотите удалить книгу под названием:</label>
-                                                <input type="text" id="deletename" disabled class="form-control" name="deletename" value="">
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <div class="py-2">
-                                                <a class="btn btn-md btn-dark" href="{{ url_for('books.index') }}">Отмена</a>
-                                            </div>
-                                            <div class="py-2">
-                                                <button type="submit" class="btn btn-danger">Удалить</button>
-                                            </div>
-                                            
-                                        </div>
-                                        
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
+        <div class="row p-3 border rounded mb-3" data-url="{{ url_for('books.show', book_id=book.id) }}">
+            <div class="col-md-3 mb-3 mb-md-0 d-flex align-items-center justify-content-center">
+                <div class="book-logo" style="background-image: url({{ book.bg_image.url }});">
                 </div>
             </div>
+            <div class="col-md-9 align-items-center">
+                <div class="d-flex">
+                    <h4 class="text-uppercase" id="book_name">{{ book.name}}</h4>
+                    <p class="ms-auto rating">
+                        <span>★</span> <span>{{ book.rating }}</span>
+                    </p>
+                </div>
+                <p class="text-muted my-3">{{ book.short_desc|markdown }}</p>
+                <p>{{ book.volume }} {% if book.volume % 100 <= 20 and book.volume % 100> 4 %}страниц {% else %} {% if
+                        book.volume % 10 == 1 %} страница {% else %} {% if book.volume % 10 < 5 %} страницы {% else %}
+                            страниц {% endif %}{% endif %}{% endif %}</p>
+                            <p class="text-muted my-3">Количество рецензий: {{ book.rating_num }}</p>
+                            <p class="text-muted my-3">Год написания: {{ book.year }}</p>
+                            <p class="text-muted my-3">{% if book.categories|length>1 %}Жанры{% else%}Жанр{% endif%}: {{
+                                book.categories[0].name }}{% for cat in range(1,book.categories|length) %}, {{
+                                book.categories[cat].name }}{% endfor %}</p>
+                            <div class="d-flex justify-content-end">
+                                <div class="px-2">
+                                    <a class="btn btn-lg btn-dark "
+                                        href="{{ url_for('books.show', book_id=book.id) }}">Подробнее</a>
+                                </div>
+                                {% if user.role==1 or user.role==2 %}
+                                <div class="px-2">
+                                    <button type="button" class="h-100 btn btn-info" data-bs-toggle="modal"
+                                        data-bs-target="#edit{{ book.id }}">
+                                        Редактировать
+                                    </button>
+                                </div>
+                                <!-- Модальное окно редактирования -->
+                                <div class="modal fade" id="edit{{ book.id }}" tabindex="-1"
+                                    aria-labelledby="edit{{ book.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="header_edit"> Редактирование книги из
+                                                    библиотеки</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Закрыть"></button>
+                                            </div>
+                                            <form method="POST" action="{{ url_for('books.edit') }}">
+                                                <input type="hidden" class="bookiddelete" name="book_id"
+                                                    value="{{ book.id }}">
+                                                <input type="hidden" class="bookiddelete2" name="book_name"
+                                                    value="{{ book.name }}">
+                                                <div class="container mb-5">
+                                                    {{ render_edit('edit',categories,book) }}
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <div class="py-2">
+                                                        <a class="btn btn-md btn-dark"
+                                                            href="{{ url_for('books.index') }}">Отмена</a>
+                                                    </div>
+                                                    <div class="py-2">
+                                                        <button type="submit"
+                                                            class="btn btn-danger">Подтвердить</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% if user.role==1 %}
+                                <div class="px-2">
+                                    <input type="hidden" class="bookiddelete1" name="book_id" value="{{ book.id }}">
+                                    <input type="hidden" class="bookiddelete3" name="book_id" value="{{ book.name }}">
+                                    <button type="button" class="h-100 btn btn-danger" data-bs-toggle="modal"
+                                        data-bs-target="#delete{{ book.id }}"
+                                        onclick="document.getElementById('deletename').value=this.parentNode.parentNode.parentNode.querySelector('.text-uppercase').innerHTML; document.querySelector('.bookiddelete').value=this.parentNode.querySelector('.bookiddelete1').value;document.querySelector('.bookiddelete2').value=this.parentNode.querySelector('.bookiddelete3').value">
+                                        Удалить
+                                    </button>
+                                </div>
+                                <!-- Модальное окно удаления -->
+                                <div class="modal fade" id="delete{{ book.id }}" tabindex="-1"
+                                    aria-labelledby="delete{{ book.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="header_delete"> Удаление книги из библиотеки
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Закрыть"></button>
+                                            </div>
+                                            <form method="POST" action="{{ url_for('books.delete') }}">
+                                                <input type="hidden" class="bookiddelete" name="book_id"
+                                                    value="{{ book.id }}">
+                                                <input type="hidden" class="bookiddelete2" name="book_name"
+                                                    value="{{ book.name }}">
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label for="mark" class="form-label DeleteForm">Вы действительно
+                                                            хотите удалить книгу под названием:</label>
+                                                        <input type="text" id="deletename" disabled class="form-control"
+                                                            name="deletename" value="{{ book.name }}">
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <div class="py-2">
+                                                        <a class="btn btn-md btn-dark"
+                                                            href="{{ url_for('books.index') }}">Отмена</a>
+                                                    </div>
+                                                    <div class="py-2">
+                                                        <button type="submit" class="btn btn-danger">Удалить</button>
+                                                    </div>
+
+                                                </div>
+
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+            </div>
+        </div>
         {% endfor %}
     </div>
 
     <div class="mb-5">
         {{ render_pagination(pagination, request.endpoint, search_params) }}
     </div>
-    
+
 
     {% if current_user.is_authenticated %}
-        <div class="text-center my-3">
-            <a class="btn btn-lg btn-dark" href="{{ url_for('books.new') }}">Добавить книгу</a>
-        </div>
+    <div class="text-center my-3">
+        <a class="btn btn-lg btn-dark" href="{{ url_for('books.new') }}">Добавить книгу</a>
+    </div>
     {% endif %}
 
 </div>

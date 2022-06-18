@@ -6,7 +6,7 @@
 
         <form method="POST" action="{{ url_for('books.create') }}" enctype="multipart/form-data">
             <div class="mb-5">
-                {{ render_edit('new',categories) }}
+                {{ render_edit('new',categories,book=book,errors=errors) }}
             </div>
         </form>
     </div>

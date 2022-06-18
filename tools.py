@@ -1,16 +1,35 @@
 import hashlib
+from unicodedata import category
 import uuid
 import os
 from werkzeug.utils import secure_filename
-from models import Book, Image
+from models import Book, Image,Category
 from app import db, app
+from flask import flash
+import datetime
+now = datetime.datetime.now()
 
 
+
+def check_text(text,flag=''):
+    if flag=='year':
+        if text=='':
+            text=0
+        if 100<int(text)<=now.year:
+            return False
+        else:
+            return 'Некорректная дата'
+    if not text:
+        return 'Поле не может быть пустым'
+    else:
+        return False
+                
 class BooksFilter:
     def __init__(self, name, category_ids):
         self.name = name
         self.category_ids = category_ids
         self.query = Book.query
+        flash(category_ids)
     def perform(self):
         self.__filter_by_name()
         self.__filter_by_category_ids()
@@ -22,8 +41,13 @@ class BooksFilter:
 
     def __filter_by_category_ids(self):
         if self.category_ids:
-            self.query = self.query.filter(Book.category_id.in_(self.category_ids))
-
+            for book in Book.query.all():
+                for cat in book.categories:
+                    flash(book)
+                    if cat.id==self.category_ids:
+                        pass
+                        # self.query.append=book
+       
 
 class ImageSaver:
     def __init__(self, file):
