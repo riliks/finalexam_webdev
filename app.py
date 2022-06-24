@@ -41,4 +41,4 @@ def image(image_id):
     img = Image.query.get(image_id)
     if img is None:
         abort(404)
-    return send_from_directory(app.config['UPLOAD_FOLDER'], img.storage_filename)
+    return send_from_directory(app.config['UPLOAD_FOLDER'], img.storage_filename)..
