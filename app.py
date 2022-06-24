@@ -36,7 +36,6 @@ init_login_manager(app)
 def index():
     return render_template('index.html')
 
-
 @app.route('/images/<image_id>')
 def image(image_id):
     img = Image.query.get(image_id)

@@ -24,6 +24,7 @@
                             <p class="text-muted my-3">{% if book.categories|length>1 %}Жанры{% else%}Жанр{% endif%}: {{
                                 book.categories[0].name }}{% for cat in range(1,book.categories|length) %}, {{
                                 book.categories[cat].name }}{% endfor %}</p>
+                            <p class="text-muted my-3">Просмотров: {{ book.view }}</p>
                             <div class="d-flex justify-content-end">
                                 <div class="px-2">
                                     <a class="btn btn-lg btn-dark "

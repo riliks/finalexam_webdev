@@ -21,15 +21,15 @@ class Category(db.Model):
     def __repr__(self):
         return '<Category %r>' % self.id
 
-# class Logs(db.Model):
-#     __tablename__ = 'logs'
+class Logs(db.Model):
+    __tablename__ = 'logs'
 
-#     id = db.Column(db.Integer, primary_key=True)
-#     created_at = db.Column(db.DateTime, nullable=False, server_default=sa.sql.func.now())
-#     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-#     book_id= db.Column(db.Integer, db.ForeignKey('books.id'))
-#     def __repr__(self):
-#         return '<Logs %r>' % self.id
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, nullable=False, server_default=sa.sql.func.now())
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    book_id= db.Column(db.Integer, db.ForeignKey('books.id'))
+    def __repr__(self):
+        return '<Logs %r>' % self.id
 
 class Roles(db.Model):
     __tablename__ = 'roles'

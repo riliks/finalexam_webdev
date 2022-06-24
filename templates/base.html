@@ -30,7 +30,7 @@
                 <ul class="navbar-nav ms-auto">
                     <div class="d-flex flex-row align-items-center">
                         <li class="px-4">
-                            <a class="nav-link {% if request.endpoint == 'boots' %} active {% endif %}"
+                            <a class="nav-link {% if request.endpoint == '/books/' %} active {% endif %}"
                                 aria-current="page" href="{{ url_for('books.index') }}">Книги</a>
                         </li>
                         {% if current_user.is_authenticated %}

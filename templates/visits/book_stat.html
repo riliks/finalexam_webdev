@@ -10,27 +10,28 @@
             <tr>
                 <th>№</th>
                 <th>Пользователь</th>
-                <th>Страница</th>
+                <th>Название книги</th>
                 <th>Дата</th>
             </tr>
         </thead>
         <tbody>
-            {% for record in records %}
+            {% for record in range(0,pages) %}
             <tr>
-                <td> {{ loop.index }}</td>
+                <td> {{ records[record].id }}</td>
                 <td>
-                    {% if record.user_id %}
-                    {{ record.last_name }} {{ record.first_name }} {{ record.middle_name or '' }}
-                    {% else %}
-                    Неаутентифицированный пользователь
-                    {% endif %}
+                    {{ users[record] }}
                 </td>
-                <td> {{ record.path }}</td>
-                <td> {{ record.created_at.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+                <td> {{ books[record] }}</td>
+                <td> {{ records[record].created_at.strftime('%d.%m.%Y %H:%M:%S') }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    <a class="btn btn-primary" href="{{ url_for('visits.user_stat', download_csv=True) }}">Экспорт в CSV</a>
+    <div class="mb-5">
+        {{ render_pagination(pagination, request.endpoint) }}
+    </div>
+    <div class="mb-5">
+        <a class="btn btn-primary" href="{{ url_for('visits.book_stat', download_csv=True) }}">Экспорт в CSV</a>
+    </div>
 </div>
 {% endblock %}

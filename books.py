@@ -1,13 +1,14 @@
 from ast import Try
 from distutils.log import error
 from unicodedata import category
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, make_response, request
 from flask_login import login_required, current_user
 import os
 from app import db
-from models import Category, Book, User, Review, Image
+from models import Category, Book, User, Review, Image,Logs
 from tools import ImageSaver,check_text
 import bleach
+from datetime import datetime, date, time,timedelta
 bp = Blueprint('books', __name__, url_prefix='/books')
 
 BOOKS_PARAMS = ['name','year', 'author' ,'pub_house',  'short_desc', 'volume']
@@ -41,12 +42,16 @@ def search_params():
 
 @bp.route('/')
 def index():
+    looked=False
+    if current_user.is_authenticated:
+        looked=Logs.query.filter(Logs.user_id == current_user.id).count()>0
+    else:
+        looked=Logs.query.filter(Logs.user_id == None).count()>0
     page = request.args.get('page', 1, type=int)
     books = Book.query.order_by(Book.created_at.desc())
-    #flash(Book.query.first().categories[0].name)
     pagination = books.paginate(page, PER_PAGE)
     categories = Category.query.all()
-    return render_template('books/index.html', categories=categories, search_params=search_params(),user=current_user,books=books,pagination=pagination)
+    return render_template('books/index.html', categories=categories, search_params=search_params(),user=current_user,books=books,pagination=pagination,looked=looked)
 
 
 @bp.route('/new')
@@ -108,6 +113,21 @@ def review(book_id):
 def show(book_id,):
     book = Book.query.get(book_id)
     reviews = Review.query.order_by(Review.created_at.desc()).filter(Review.book_id == book_id)
+    date = datetime.today() - timedelta(days=1)
+    if current_user.is_authenticated:
+        if Logs.query.filter(Logs.user_id == current_user.id).filter(Logs.book_id == book_id).filter(Logs.created_at > date).count()<10:
+            log = Logs(user_id=current_user.id,book_id=book_id)
+            book.view=book.view+1
+    else:
+        if Logs.query.filter(Logs.user_id == None).filter(Logs.book_id == book_id).filter(Logs.created_at > date).count()<10:
+            log = Logs(user_id=None,book_id=book_id)
+    try:
+        db.session.add(log)
+        db.session.commit()
+        db.session.add(book)
+        db.session.commit()
+    except:
+        db.session.rollback()
     check=None
     for i in reviews:
         try:
@@ -186,13 +206,28 @@ def edit():
 
 
 @bp.route('/popular')
-@login_required
 def popular():
-    books = Book.query.order_by(Book.rating_sum.desc()).limit(5)
+    books = Book.query.order_by(Book.view.desc()).all()
+    date = datetime.today() - timedelta(days=90)
+    logs=Logs.query.all()
+    for book in books:
+        amount=Logs.query.filter(Logs.book_id == book.id).filter(Logs.created_at > date).count()
+        book.view=amount
     return render_template('books/popular.html',books=books)
 
 @bp.route('/viewed')
-@login_required
 def viewed():
-    books = Book.query.order_by(Book.created_at.desc()).limit(5)  
-    return render_template('books/viewed.html',books=books)
+    if current_user.is_authenticated:
+        log=Logs.query.filter(Logs.user_id == current_user.id).order_by(Logs.book_id.desc()).all()
+    else:
+        log=Logs.query.filter(Logs.user_id == None).order_by(Logs.book_id.desc()).all()
+    list=[]
+    list.append(log[0].book_id)
+    for i in log:
+        if list[len(list)-1]!=i.book_id:
+            list.append(i.book_id)
+    books = Book.query.order_by(Book.created_at.desc()).limit(5) 
+    var=[] 
+    for book in books:
+        if book.id in list:var.append(book)
+    return render_template('books/viewed.html',books=var)

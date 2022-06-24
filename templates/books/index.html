@@ -10,11 +10,12 @@
         <div class="my-5 col-md-4 col-sm-12">
             <h2 class="mb-3 text-center text-uppercase font-weight-bold">Книги для прочтения</h2>
         </div>
+        {% if looked==True %}
         <div class="col-md-4 col-sm-12 text-center">
             <a class="btn  btn-lg btn-dark" href="{{ url_for('books.viewed') }}">Недавно просмотренные книги</a>
         </div>
+        {% endif %}
     </div>
-    {# url_for('books.show', book_id=book.id) #}
     <div class="container-fluid mt-3 mb-3">
         {% for book in books %}
         <div class="row p-3 border rounded mb-3" data-url="{{ url_for('books.show', book_id=book.id) }}">

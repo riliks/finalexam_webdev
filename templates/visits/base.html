@@ -7,11 +7,11 @@
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a class="nav-link {% if request.endpoint == 'visits.book_stat' %} active {% endif %}" aria-current="page"
-                href="{{ url_for('visits.book_stat') }}">Журнал действий пользователей</a>
+                href="{{ url_for('visits.book_stat') }}">Статистика просмотра книг</a>
         </li>
         <li class="nav-item">
             <a class="nav-link {% if request.endpoint == 'visits.user_stat' %} active {% endif %}" aria-current="page"
-                href="{{ url_for('visits.user_stat') }}">Статистика просмотра книг</a>
+                href="{{ url_for('visits.user_stat') }}">Журнал действий пользователей</a>
         </li>
     </ul>
 </div>
